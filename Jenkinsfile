@@ -3,13 +3,6 @@ pipeline {
     agent { label "sample-agent" }
     
     stages {
-        stage("Hello"){
-            steps{
-                script{
-                    hello()
-                }
-            }
-        }
         stage("Code") {
             steps {
                 echo "This is cloning the code."
@@ -26,17 +19,17 @@ pipeline {
             }
         }
 
-        stage("Run") {
-            steps {
-                sh '''
-                     # Stop and remove old container (running or stopped) if it exists
-                    docker ps -aq --filter "name=sample-container" | grep -q . && docker stop sample-container && docker rm sample-container || true
+        // stage("Run") {
+        //     steps {
+        //         sh '''
+        //              # Stop and remove old container (running or stopped) if it exists
+        //             docker ps -aq --filter "name=sample-container" | grep -q . && docker stop sample-container && docker rm sample-container || true
             
-                    # Run fresh container
-                    docker run -d -p 5000:5000 --name sample-container sample-app
-                    '''
-            }
-        }
+        //             # Run fresh container
+        //             docker run -d -p 5000:5000 --name sample-container sample-app
+        //             '''
+        //     }
+        // }
         stage("Push to DockerHub") {
             steps {
                 echo "Pushing the image to DockerHub"
@@ -49,10 +42,9 @@ pipeline {
                 }
             }
         }
-        stage("Deploy") {
+        stage("Deploy App") {
             steps {
-                echo "Cleaning up unused Docker resources..."
-                sh "docker system prune -af"
+                deploy() // Uses default docker-compose.yml
             }
         }
         stage('Verify App') {
